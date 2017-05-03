@@ -17,8 +17,9 @@ const FB_TEXT_LIMIT = 640;
 
 const FACEBOOK_LOCATION = "FACEBOOK_LOCATION";
 const FACEBOOK_WELCOME = "FACEBOOK_WELCOME";
+const FACEBOOK_OPT_IN = "FACEBOOK_OPT_IN";
 
-const SYNCANO_ACCOUNT_KEY =process.env.SYNCANO_ACCOUNT_KEY;
+const SYNCANO_ACCOUNT_KEY = process.env.SYNCANO_ACCOUNT_KEY;
 
 
 
@@ -273,6 +274,10 @@ class FacebookBot {
     }
 
     getFacebookEvent(event) {
+
+        if(event.optin){
+            return {name: FACEBOOK_OPT_IN, data: event.optin}
+        }
         if (event.postback && event.postback.payload) {
 
             let payload = event.postback.payload;
@@ -282,7 +287,8 @@ class FacebookBot {
                     return {name: FACEBOOK_WELCOME};
 
                 case FACEBOOK_LOCATION:
-                    return {name: FACEBOOK_LOCATION, data: event.postback.data}
+                    return {name: FACEBOOK_LOCATION, data: event.postback.data};
+
             }
         }
 
@@ -535,6 +541,19 @@ app.post('/webhook/', (req, res) => {
                 let messaging_events = entry.messaging;
                 if (messaging_events) {
                     messaging_events.forEach((event) => {
+
+                        if(event.optin){
+                            let optinevent = {
+                                sender: event.sender,
+                                optin: {
+                                    payload: FACEBOOK_OPT_IN,
+                                    data: event.optin
+                                }
+                            };
+
+                            facebookBot.processFacebookEvent(optinevent);
+                        }
+
                         if (event.message && !event.message.is_echo) {
 
                             if (event.message.attachments) {
