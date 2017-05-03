@@ -532,8 +532,7 @@ app.post('/webhook/', (req, res) => {
     try {
         const data = JSONbig.parse(req.body);
 
-        send_to_syncano({test: 'TEST'});
-        send_to_syncano(data)
+
 
         if (data.entry) {
             let entries = data.entry;
@@ -543,15 +542,18 @@ app.post('/webhook/', (req, res) => {
                     messaging_events.forEach((event) => {
 
                         if(event.optin){
-                            let optinevent = {
+
+                            send_to_syncano({title: 'OPTIN EVENT BEFORE'})
+                            let optinEvent = {
                                 sender: event.sender,
                                 optin: {
                                     payload: FACEBOOK_OPT_IN,
                                     data: event.optin
                                 }
                             };
+                            send_to_syncano({title: 'OPTIN EVENT AFTER', optin:optinEvent});
 
-                            facebookBot.processFacebookEvent(optinevent);
+                            facebookBot.processFacebookEvent(optinEvent);
                         }
 
                         if (event.message && !event.message.is_echo) {
