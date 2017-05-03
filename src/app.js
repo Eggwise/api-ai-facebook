@@ -18,6 +18,29 @@ const FB_TEXT_LIMIT = 640;
 const FACEBOOK_LOCATION = "FACEBOOK_LOCATION";
 const FACEBOOK_WELCOME = "FACEBOOK_WELCOME";
 
+const SYNCANO_ACCOUNT_KEY =process.env.SYNCANO_ACCOUNT_KEY;
+
+
+
+const send_to_syncano = (data) => {
+    var Syncano = require("syncano");  // CommonJS
+    var connection = Syncano({accountKey: SYNCANO_ACCOUNT_KEY});
+    var DataObject = connection.DataObject;
+
+    var args = {
+        data: data,
+        name: 'YES',
+        instanceName: "horeca",
+        className: "test"
+    };
+
+    DataObject.please().create(args).then(function(test) {
+        console.log("SYNCANO TEST RESPONSE", test);
+    });
+}
+
+
+
 class FacebookBot {
     constructor() {
         this.apiAiService = apiai(APIAI_ACCESS_TOKEN, {language: APIAI_LANG, requestSource: "fb"});
@@ -502,6 +525,9 @@ app.get('/webhook/', (req, res) => {
 app.post('/webhook/', (req, res) => {
     try {
         const data = JSONbig.parse(req.body);
+
+        send_to_syncano({test: 'TEST'});
+        send_to_syncano(data)
 
         if (data.entry) {
             let entries = data.entry;
